@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadNote - Lecteur PDF avec Notes</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #FFFFFF;
+            color: #000000;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: #000000;
+            color: #FFFFFF;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #000000;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #FFFFFF;
+            color: #000000;
+            border: 2px solid #000000;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* PDF Viewer */
+        .pdf-viewer {
+            flex: 1;
+            background: #F5F5F5;
+            border-right: 2px solid #000000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .pdf-controls {
+            background: #FFFFFF;
+            padding: 10px;
+            border-bottom: 1px solid #CCCCCC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pdf-controls button {
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+
+        .page-info {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .pdf-canvas-container {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        #pdf-canvas {
+            border: 1px solid #CCCCCC;
+            background: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .pdf-placeholder {
+            text-align: center;
+            padding: 50px;
+            color: #666666;
+        }
+
+        .pdf-placeholder p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Notes Editor */
+        .notes-editor {
+            flex: 1;
+            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+        }
+
+        .notes-editor.hidden {
+            flex: 0;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .editor-toolbar {
+            background: #F5F5F5;
+            padding: 10px;
+            border-bottom: 1px solid #CCCCCC;
+            display: flex;
+            gap: 5px;
+        }
+
+        .editor-toolbar button {
+            padding: 8px 12px;
+            font-size: 12px;
+            min-width: 40px;
+        }
+
+        .editor-toolbar button.active {
+            background: #000000;
+            color: #FFFFFF;
+        }
+
+        #notes-textarea {
+            flex: 1;
+            border: none;
+            padding: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            font-family: 'Georgia', serif;
+        }
+
+        /* File Input Hidden */
+        #pdf-input {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .pdf-viewer {
+                border-right: none;
+                border-bottom: 2px solid #000000;
+            }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #000000;
+            color: #FFFFFF;
+            padding: 15px 25px;
+            border-radius: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 ReadNote</h1>
+        <div class="header-buttons">
+            <button onclick="openPDF()">Ouvrir un PDF</button>
+            <button onclick="toggleEditor()">Masquer/Afficher Notes</button>
+            <button onclick="exportNotes()">Exporter Notes</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- PDF Viewer -->
+        <div class="pdf-viewer">
+            <div class="pdf-controls" id="pdf-controls" style="display: none;">
+                <button onclick="previousPage()">← Précédent</button>
+                <span class="page-info">Page <span id="page-num">1</span> / <span id="page-count">0</span></span>
+                <button onclick="nextPage()">Suivant →</button>
+            </div>
+            <div class="pdf-canvas-container">
+                <div class="pdf-placeholder" id="pdf-placeholder">
+                    <p>📄 Aucun PDF chargé</p>
+                    <button onclick="openPDF()">Ouvrir un PDF</button>
+                </div>
+                <canvas id="pdf-canvas" style="display: none;"></canvas>
+            </div>
+        </div>
+
+        <!-- Notes Editor -->
+        <div class="notes-editor" id="notes-editor">
+            <div class="editor-toolbar">
+                <button onclick="formatText('bold')" title="Gras"><strong>B</strong></button>
+                <button onclick="formatText('italic')" title="Italique"><em>I</em></button>
+                <button onclick="formatText('underline')" title="Souligné"><u>U</u></button>
+                <button onclick="clearNotes()" title="Effacer tout">🗑️</button>
+                <button onclick="saveNotes()" title="Sauvegarder">💾</button>
+            </div>
+            <textarea id="notes-textarea" placeholder="Prenez vos notes ici..."></textarea>
+        </div>
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="pdf-input" accept="application/pdf" onchange="handleFileSelect(event)">
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // PDF.js configuration
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.5;
+
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        const notesTextarea = document.getElementById('notes-textarea');
+
+        // Load saved notes on startup
+        window.addEventListener('load', () => {
+            const savedNotes = localStorage.getItem('readnote-notes');
+            if (savedNotes) {
+                notesTextarea.value = savedNotes;
+            }
+        });
+
+        // Auto-save notes
+        notesTextarea.addEventListener('input', () => {
+            localStorage.setItem('readnote-notes', notesTextarea.value);
+        });
+
+        // Open PDF
+        function openPDF() {
+            document.getElementById('pdf-input').click();
+        }
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                const fileReader = new FileReader();
+                fileReader.onload = function() {
+                    const typedarray = new Uint8Array(this.result);
+                    loadPDF(typedarray);
+                };
+                fileReader.readAsArrayBuffer(file);
+            } else {
+                showToast('Veuillez sélectionner un fichier PDF valide');
+            }
+        }
+
+        // Load PDF
+        function loadPDF(data) {
+            pdfjsLib.getDocument(data).promise.then(pdf => {
+                pdfDoc = pdf;
+                document.getElementById('page-count').textContent = pdf.numPages;
+                document.getElementById('pdf-placeholder').style.display = 'none';
+                document.getElementById('pdf-canvas').style.display = 'block';
+                document.getElementById('pdf-controls').style.display = 'flex';
+                renderPage(pageNum);
+                showToast('PDF chargé avec succès !');
+            }).catch(err => {
+                console.error('Erreur de chargement du PDF:', err);
+                showToast('Erreur lors du chargement du PDF');
+            });
+        }
+
+        // Render page
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(page => {
+                const viewport = page.getViewport({ scale: scale });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+
+                const renderTask = page.render(renderContext);
+                renderTask.promise.then(() => {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-num').textContent = num;
+        }
+
+        // Queue page rendering
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        // Previous page
+        function previousPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+
+        // Next page
+        function nextPage() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        }
+
+        // Toggle editor
+        function toggleEditor() {
+            const editor = document.getElementById('notes-editor');
+            editor.classList.toggle('hidden');
+        }
+
+        // Format text (basic implementation)
+        function formatText(command) {
+            const textarea = notesTextarea;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            if (!selectedText) {
+                showToast('Sélectionnez du texte d\'abord');
+                return;
+            }
+
+            let formattedText = selectedText;
+            if (command === 'bold') {
+                formattedText = `**${selectedText}**`;
+            } else if (command === 'italic') {
+                formattedText = `*${selectedText}*`;
+            } else if (command === 'underline') {
+                formattedText = `__${selectedText}__`;
+            }
+
+            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+            localStorage.setItem('readnote-notes', textarea.value);
+        }
+
+        // Clear notes
+        function clearNotes() {
+            if (confirm('Êtes-vous sûr de vouloir effacer toutes vos notes ?')) {
+                notesTextarea.value = '';
+                localStorage.removeItem('readnote-notes');
+                showToast('Notes effacées');
+            }
+        }
+
+        // Save notes
+        function saveNotes() {
+            localStorage.setItem('readnote-notes', notesTextarea.value);
+            showToast('Notes sauvegardées !');
+        }
+
+        // Export notes
+        function exportNotes() {
+            const notes = notesTextarea.value;
+            if (!notes.trim()) {
+                showToast('Aucune note à exporter');
+                return;
+            }
+
+            const exportFormat = confirm('Cliquez OK pour exporter en PDF, Annuler pour TXT');
+            
+            if (exportFormat) {
+                // Export as PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const lines = doc.splitTextToSize(notes, 180);
+                doc.text(lines, 15, 15);
+                doc.save('readnote-notes.pdf');
+                showToast('Notes exportées en PDF !');
+            } else {
+                // Export as TXT
+                const blob = new Blob([notes], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'readnote-notes.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('Notes exportées en TXT !');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    saveNotes();
+                } else if (e.key === 'b') {
+                    e.preventDefault();
+                    formatText('bold');
+                } else if (e.key === 'i') {
+                    e.preventDefault();
+                    formatText('italic');
+                } else if (e.key === 'u') {
+                    e.preventDefault();
+                    formatText('underline');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
