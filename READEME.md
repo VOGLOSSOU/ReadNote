@@ -2,10 +2,6 @@
 
 Un lecteur PDF minimaliste avec éditeur de notes intégré pour prendre des notes pendant votre lecture.
 
-![Version](https://img.shields.io/badge/version-1.0.0-black)
-![License](https://img.shields.io/badge/license-MIT-black)
-![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-black)
-
 ##  À propos
 
 **ReadNote** est un outil simple et élégant qui permet de lire des fichiers PDF tout en prenant des notes directement à côté. Parfait pour les étudiants, chercheurs, lecteurs passionnés ou toute personne qui aime organiser ses pensées pendant la lecture.

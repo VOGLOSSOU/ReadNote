@@ -13,8 +13,33 @@
             box-sizing: border-box;
         }
 
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F5F5F5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #000000;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333333;
+        }
+
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #000000 #F5F5F5;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
             background: #FFFFFF;
             color: #000000;
             height: 100vh;
@@ -25,7 +50,7 @@
         .header {
             background: #000000;
             color: #FFFFFF;
-            padding: 15px 20px;
+            padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -33,13 +58,14 @@
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
         .header-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         button {
@@ -51,6 +77,7 @@
             font-size: 14px;
             font-weight: 500;
             transition: all 0.2s;
+            letter-spacing: -0.2px;
         }
 
         button:hover {
@@ -65,13 +92,13 @@
         /* Main Container */
         .container {
             display: flex;
-            height: calc(100vh - 60px);
+            height: calc(100vh - 62px);
         }
 
         /* PDF Viewer */
         .pdf-viewer {
             flex: 1;
-            background: #F5F5F5;
+            background: #F8F8F8;
             border-right: 2px solid #000000;
             display: flex;
             flex-direction: column;
@@ -80,8 +107,8 @@
 
         .pdf-controls {
             background: #FFFFFF;
-            padding: 10px;
-            border-bottom: 1px solid #CCCCCC;
+            padding: 12px;
+            border-bottom: 1px solid #E0E0E0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -89,13 +116,14 @@
         }
 
         .pdf-controls button {
-            padding: 8px 15px;
-            font-size: 12px;
+            padding: 8px 16px;
+            font-size: 13px;
         }
 
         .page-info {
             font-size: 14px;
             font-weight: 500;
+            letter-spacing: -0.2px;
         }
 
         .pdf-canvas-container {
@@ -107,21 +135,93 @@
             padding: 20px;
         }
 
-        #pdf-canvas {
-            border: 1px solid #CCCCCC;
-            background: #FFFFFF;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
         .pdf-placeholder {
             text-align: center;
-            padding: 50px;
+            padding: 60px 20px;
             color: #666666;
         }
 
         .pdf-placeholder p {
             font-size: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            letter-spacing: -0.2px;
+        }
+
+        /* PDF Page Container */
+        .pdf-page-container {
+            position: relative;
+            background: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #E0E0E0;
+        }
+
+        #pdf-canvas {
+            display: block;
+        }
+
+        /* Text Layer for PDF.js */
+        .textLayer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            opacity: 1;
+            line-height: 1.0;
+            -webkit-text-size-adjust: none;
+            -moz-text-size-adjust: none;
+            text-size-adjust: none;
+            forced-color-adjust: none;
+        }
+
+        .textLayer span,
+        .textLayer br {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        .textLayer span.markedContent {
+            top: 0;
+            height: 0;
+        }
+
+        .textLayer ::selection {
+            background: rgba(0, 100, 255, 0.3);
+        }
+
+        .textLayer br::selection {
+            background: transparent;
+        }
+
+        .textLayer .highlight {
+            margin: -1px;
+            padding: 1px;
+            background-color: rgba(180, 0, 170, 1);
+            border-radius: 4px;
+        }
+
+        .textLayer .highlight.appended {
+            position: initial;
+        }
+
+        .textLayer .highlight.begin {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .textLayer .highlight.end {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .textLayer .highlight.middle {
+            border-radius: 0;
+        }
+
+        .textLayer .highlight.selected {
+            background-color: rgba(0, 100, 255, 1);
         }
 
         /* Notes Editor */
@@ -140,33 +240,64 @@
         }
 
         .editor-toolbar {
-            background: #F5F5F5;
-            padding: 10px;
-            border-bottom: 1px solid #CCCCCC;
+            background: #FAFAFA;
+            padding: 12px;
+            border-bottom: 1px solid #E0E0E0;
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            align-items: center;
         }
 
         .editor-toolbar button {
-            padding: 8px 12px;
-            font-size: 12px;
+            padding: 10px;
+            font-size: 16px;
             min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+        }
+
+        .editor-toolbar button:hover {
+            background: #F5F5F5;
+            color: #000000;
+            border-color: #000000;
         }
 
         .editor-toolbar button.active {
             background: #000000;
             color: #FFFFFF;
+            border-color: #000000;
         }
 
-        #notes-textarea {
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: #E0E0E0;
+            margin: 0 4px;
+        }
+
+        #notes-editor-content {
             flex: 1;
             border: none;
-            padding: 20px;
+            padding: 24px;
             font-size: 15px;
-            line-height: 1.6;
-            resize: none;
+            line-height: 1.7;
             outline: none;
-            font-family: 'Georgia', serif;
+            overflow-y: auto;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: -0.2px;
+        }
+
+        #notes-editor-content:empty:before {
+            content: attr(data-placeholder);
+            color: #AAAAAA;
+        }
+
+        #notes-editor-content:focus:before {
+            content: '';
         }
 
         /* File Input Hidden */
@@ -184,20 +315,32 @@
                 border-right: none;
                 border-bottom: 2px solid #000000;
             }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header-buttons button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
         }
 
         /* Toast notification */
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            right: 24px;
             background: #000000;
             color: #FFFFFF;
-            padding: 15px 25px;
+            padding: 16px 24px;
             border-radius: 0;
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 1000;
+            font-size: 14px;
+            letter-spacing: -0.2px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .toast.show {
@@ -228,20 +371,30 @@
                     <p>📄 Aucun PDF chargé</p>
                     <button onclick="openPDF()">Ouvrir un PDF</button>
                 </div>
-                <canvas id="pdf-canvas" style="display: none;"></canvas>
+                <div class="pdf-page-container" id="pdf-page-container" style="display: none;">
+                    <canvas id="pdf-canvas"></canvas>
+                    <div class="textLayer" id="text-layer"></div>
+                </div>
             </div>
         </div>
 
         <!-- Notes Editor -->
         <div class="notes-editor" id="notes-editor">
             <div class="editor-toolbar">
-                <button onclick="formatText('bold')" title="Gras"><strong>B</strong></button>
-                <button onclick="formatText('italic')" title="Italique"><em>I</em></button>
-                <button onclick="formatText('underline')" title="Souligné"><u>U</u></button>
-                <button onclick="clearNotes()" title="Effacer tout">🗑️</button>
-                <button onclick="saveNotes()" title="Sauvegarder">💾</button>
+                <button onclick="formatText('bold')" title="Gras (Ctrl+B)">
+                    <strong>B</strong>
+                </button>
+                <button onclick="formatText('italic')" title="Italique (Ctrl+I)">
+                    <em>I</em>
+                </button>
+                <button onclick="formatText('underline')" title="Souligné (Ctrl+U)">
+                    <u>U</u>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button onclick="saveNotes()" title="Sauvegarder (Ctrl+S)">💾</button>
+                <button onclick="clearNotes()" title="Tout effacer">🗑️</button>
             </div>
-            <textarea id="notes-textarea" placeholder="Prenez vos notes ici..."></textarea>
+            <div id="notes-editor-content" contenteditable="true" data-placeholder="Commencez à écrire vos notes..."></div>
         </div>
     </div>
 
@@ -259,23 +412,22 @@
         let pageNum = 1;
         let pageRendering = false;
         let pageNumPending = null;
-        let scale = 1.5;
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
-        const notesTextarea = document.getElementById('notes-textarea');
+        const notesEditor = document.getElementById('notes-editor-content');
 
         // Load saved notes on startup
         window.addEventListener('load', () => {
             const savedNotes = localStorage.getItem('readnote-notes');
             if (savedNotes) {
-                notesTextarea.value = savedNotes;
+                notesEditor.innerHTML = savedNotes;
             }
         });
 
         // Auto-save notes
-        notesTextarea.addEventListener('input', () => {
-            localStorage.setItem('readnote-notes', notesTextarea.value);
+        notesEditor.addEventListener('input', () => {
+            localStorage.setItem('readnote-notes', notesEditor.innerHTML);
         });
 
         // Open PDF
@@ -304,7 +456,7 @@
                 pdfDoc = pdf;
                 document.getElementById('page-count').textContent = pdf.numPages;
                 document.getElementById('pdf-placeholder').style.display = 'none';
-                document.getElementById('pdf-canvas').style.display = 'block';
+                document.getElementById('pdf-page-container').style.display = 'block';
                 document.getElementById('pdf-controls').style.display = 'flex';
                 renderPage(pageNum);
                 showToast('PDF chargé avec succès !');
@@ -314,21 +466,49 @@
             });
         }
 
-        // Render page
+        // Render page with text layer
         function renderPage(num) {
             pageRendering = true;
+            
             pdfDoc.getPage(num).then(page => {
-                const viewport = page.getViewport({ scale: scale });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                // Calculate scale for responsive display with high quality
+                const container = document.querySelector('.pdf-canvas-container');
+                const containerWidth = container.clientWidth - 40;
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = Math.min(containerWidth / viewport.width, 3.0); // Higher scale for better quality
+                const scaledViewport = page.getViewport({ scale: scale });
+                
+                // Set canvas dimensions
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
 
+                // Render PDF page on canvas
                 const renderContext = {
                     canvasContext: ctx,
-                    viewport: viewport
+                    viewport: scaledViewport
                 };
 
                 const renderTask = page.render(renderContext);
+
+                // Get text content and render text layer
+                const textLayerDiv = document.getElementById('text-layer');
+                textLayerDiv.innerHTML = '';
+                textLayerDiv.style.width = scaledViewport.width + 'px';
+                textLayerDiv.style.height = scaledViewport.height + 'px';
+
                 renderTask.promise.then(() => {
+                    return page.getTextContent();
+                }).then(textContent => {
+                    // Render text layer for text selection
+                    const textLayer = pdfjsLib.renderTextLayer({
+                        textContentSource: textContent,
+                        container: textLayerDiv,
+                        viewport: scaledViewport,
+                        textDivs: []
+                    });
+
+                    return textLayer.promise;
+                }).then(() => {
                     pageRendering = false;
                     if (pageNumPending !== null) {
                         renderPage(pageNumPending);
@@ -339,6 +519,13 @@
 
             document.getElementById('page-num').textContent = num;
         }
+
+        // Re-render on window resize
+        window.addEventListener('resize', () => {
+            if (pdfDoc) {
+                renderPage(pageNum);
+            }
+        });
 
         // Queue page rendering
         function queueRenderPage(num) {
@@ -369,49 +556,31 @@
             editor.classList.toggle('hidden');
         }
 
-        // Format text (basic implementation)
+        // Format text with contenteditable
         function formatText(command) {
-            const textarea = notesTextarea;
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-            
-            if (!selectedText) {
-                showToast('Sélectionnez du texte d\'abord');
-                return;
-            }
-
-            let formattedText = selectedText;
-            if (command === 'bold') {
-                formattedText = `**${selectedText}**`;
-            } else if (command === 'italic') {
-                formattedText = `*${selectedText}*`;
-            } else if (command === 'underline') {
-                formattedText = `__${selectedText}__`;
-            }
-
-            textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-            localStorage.setItem('readnote-notes', textarea.value);
+            document.execCommand(command, false, null);
+            notesEditor.focus();
+            localStorage.setItem('readnote-notes', notesEditor.innerHTML);
         }
 
-        // Clear notes
+        // Clear notes and localStorage
         function clearNotes() {
-            if (confirm('Êtes-vous sûr de vouloir effacer toutes vos notes ?')) {
-                notesTextarea.value = '';
+            if (confirm('⚠️ Êtes-vous sûr de vouloir effacer toutes vos notes et vider le stockage ?')) {
+                notesEditor.innerHTML = '';
                 localStorage.removeItem('readnote-notes');
-                showToast('Notes effacées');
+                showToast('Notes effacées et stockage vidé');
             }
         }
 
         // Save notes
         function saveNotes() {
-            localStorage.setItem('readnote-notes', notesTextarea.value);
+            localStorage.setItem('readnote-notes', notesEditor.innerHTML);
             showToast('Notes sauvegardées !');
         }
 
         // Export notes
         function exportNotes() {
-            const notes = notesTextarea.value;
+            const notes = notesEditor.innerText;
             if (!notes.trim()) {
                 showToast('Aucune note à exporter');
                 return;
