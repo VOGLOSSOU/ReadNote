@@ -1,0 +1,44 @@
+{
+  "name": "ReadNote - Lecteur PDF avec Notes",
+  "short_name": "ReadNote",
+  "description": "Un lecteur PDF minimaliste avec éditeur de notes intégré",
+  "start_url": "./readnote.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#000000",
+  "orientation": "any",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "education",
+    "utilities"
+  ],
+  "shortcuts": [
+    {
+      "name": "Ouvrir un PDF",
+      "short_name": "Ouvrir",
+      "description": "Charger un nouveau PDF",
+      "url": "./readnote.html",
+      "icons": [
+        {
+          "src": "./icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
