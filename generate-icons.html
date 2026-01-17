@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'icônes ReadNote</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #F5F5F5;
+            padding: 20px;
+        }
+        .container {
+            background: #FFFFFF;
+            padding: 40px;
+            border: 2px solid #000000;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        canvas {
+            border: 2px solid #000000;
+        }
+        button {
+            background: #000000;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .info {
+            background: #F5F5F5;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 4px solid #000000;
+            text-align: left;
+        }
+        .info h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Générateur d'icônes ReadNote</h1>
+        <p>Cliquez sur les boutons ci-dessous pour télécharger les icônes PWA pour ReadNote.</p>
+        
+        <div class="preview">
+            <div>
+                <canvas id="canvas-192" width="192" height="192"></canvas>
+                <p><strong>192x192</strong></p>
+            </div>
+            <div>
+                <canvas id="canvas-512" width="512" height="512"></canvas>
+                <p><strong>512x512</strong></p>
+            </div>
+        </div>
+
+        <button onclick="downloadIcon('192')">⬇️ Télécharger icon-192.png</button>
+        <button onclick="downloadIcon('512')">⬇️ Télécharger icon-512.png</button>
+
+        <div class="info">
+            <h3>📋 Instructions :</h3>
+            <ol style="padding-left: 20px;">
+                <li>Téléchargez les deux icônes (192x192 et 512x512)</li>
+                <li>Placez-les dans le même dossier que <code>readnote.html</code></li>
+                <li>Les fichiers doivent s'appeler exactement <code>icon-192.png</code> et <code>icon-512.png</code></li>
+                <li>Votre PWA est prête à être installée !</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Dessiner les icônes
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Fond noir
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Emoji livre (simplifié avec des formes)
+            ctx.fillStyle = '#FFFFFF';
+            
+            // Livre ouvert
+            const bookWidth = size * 0.6;
+            const bookHeight = size * 0.5;
+            const x = (size - bookWidth) / 2;
+            const y = (size - bookHeight) / 2;
+            
+            // Page gauche
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + bookWidth / 2, y);
+            ctx.lineTo(x + bookWidth / 2, y + bookHeight);
+            ctx.quadraticCurveTo(x + bookWidth / 2, y + bookHeight + 20, x, y + bookHeight);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Page droite
+            ctx.beginPath();
+            ctx.moveTo(x + bookWidth / 2, y);
+            ctx.lineTo(x + bookWidth, y);
+            ctx.lineTo(x + bookWidth, y + bookHeight);
+            ctx.quadraticCurveTo(x + bookWidth / 2, y + bookHeight + 20, x + bookWidth / 2, y + bookHeight);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Lignes de texte (décoratives)
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = size * 0.015;
+            const lineStart = y + bookHeight * 0.25;
+            const lineSpacing = bookHeight * 0.15;
+            
+            for (let i = 0; i < 4; i++) {
+                // Page gauche
+                ctx.beginPath();
+                ctx.moveTo(x + bookWidth * 0.1, lineStart + i * lineSpacing);
+                ctx.lineTo(x + bookWidth * 0.4, lineStart + i * lineSpacing);
+                ctx.stroke();
+                
+                // Page droite
+                ctx.beginPath();
+                ctx.moveTo(x + bookWidth * 0.6, lineStart + i * lineSpacing);
+                ctx.lineTo(x + bookWidth * 0.9, lineStart + i * lineSpacing);
+                ctx.stroke();
+            }
+            
+            // Reliure centrale
+            ctx.fillStyle = '#CCCCCC';
+            ctx.fillRect(x + bookWidth / 2 - size * 0.01, y, size * 0.02, bookHeight);
+        }
+
+        // Dessiner les icônes au chargement
+        drawIcon(document.getElementById('canvas-192'), 192);
+        drawIcon(document.getElementById('canvas-512'), 512);
+
+        // Télécharger l'icône
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas-${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
